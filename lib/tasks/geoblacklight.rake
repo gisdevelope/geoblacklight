@@ -67,7 +67,7 @@ namespace :geoblacklight do
       begin
         fail 'Please supply required arguments [document_id, download_type and timeout]' unless args[:doc_id] && args[:download_type] && args[:timeout]
         document = Geoblacklight::SolrDocument.find(args[:doc_id])
-        fail Blacklight::Exceptions::RecordNotFound if document[:layer_slug_s] != args[:doc_id]
+        fail Blacklight::Exceptions::RecordNotFound if document[Settings.FIELDS.LAYER_SLUG.to_sym] != args[:doc_id]
         download = "Geoblacklight::#{args[:download_type].capitalize}Download"
                    .constantize.new(document, timeout: args[:timeout].to_i)
         download.get

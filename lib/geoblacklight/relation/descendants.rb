@@ -8,7 +8,7 @@ module Geoblacklight
 
       def create_search_params
         { fq: "#{Settings.FIELDS.SOURCE}:#{@search_id}",
-          fl: [Settings.FIELDS.TITLE, 'layer_slug_s'] }
+          fl: [Settings.FIELDS.TITLE, Settings.FIELDS.LAYER_SLUG] }
       end
 
       def execute_query

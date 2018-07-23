@@ -3,7 +3,7 @@
 </li>
 <% @relations.ancestors['docs'].each do |ancestor| %>
   <li>
-    <%= link_to solr_document_path(ancestor['layer_slug_s']) do %>
+    <%= link_to solr_document_path(ancestor['#{Settings.FIELDS.LAYER_SLUG}']) do %>
       <span class='geoblacklight geoblacklight-relations-ancestor'></span> <%= ancestor['dc_title_s'] %>
     <% end %>
   </li>

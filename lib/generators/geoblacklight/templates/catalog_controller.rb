@@ -23,7 +23,7 @@ class CatalogController < ApplicationController
     #
     config.default_document_solr_params = {
      :qt => 'document',
-     :q => '{!raw f=layer_slug_s v=$id}'
+     :q => '{!raw f=#{Settings.FIELDS.LAYER_SLUG} v=$id}'
     }
 
     # solr field configuration for search results/index views
