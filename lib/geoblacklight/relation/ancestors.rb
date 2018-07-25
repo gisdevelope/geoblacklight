@@ -7,8 +7,9 @@ module Geoblacklight
       end
 
       def create_search_params
-        { fq: ["{!join from=#{Settings.FIELDS.SOURCE} to=#{Settings.FIELDS.LAYER_SLUG}}#{Settings.FIELDS.LAYER_SLUG}:#{@search_id}"],
-          fl: [Settings.FIELDS.TITLE, Settings.FIELDS.LAYER_SLUG] }
+        slug_f = Settings.FIELDS.LAYER_SLUG
+        { fq: ["{!join from=#{Settings.FIELDS.SOURCE} to=#{slug_f}}#{slug_f}:#{@search_id}"],
+          fl: [Settings.FIELDS.TITLE, slug_f] }
       end
 
       def execute_query
