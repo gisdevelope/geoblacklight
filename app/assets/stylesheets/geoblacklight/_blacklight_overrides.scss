@@ -32,3 +32,40 @@
   padding-top:0.5rem;
 }
 // End - Addresses GBL issue #639
+
+// Begin - Addresses GBL issue #656
+.navbar-brand {
+  background: transparent;
+  padding-top: 0.5rem;
+  padding-bottom: 0;
+  margin-right: 0;
+  font-size: 1.25rem;
+  line-height: inherit;
+  text-indent:0%;
+  height:auto;
+}
+
+$logo-image: image_url('blacklight/logo.png') !default;
+
+.topbar .navbar-brand {  /* The main logo image for the Blacklight instance */
+  @if $logo-image {
+    background: transparent $logo-image no-repeat top left;
+  }
+
+  @if $logo_image {
+    // deprecated
+    background: transparent image_url($logo_image) no-repeat top left;
+  }
+
+  display: inline-block;
+  flex: 0 0 150px;
+  height: 50px;
+  margin-right:20px;
+  margin-top: -0.4rem;
+  overflow: hidden;
+  padding-left: 0;
+  padding-right: 0;
+  text-indent: 100%;
+  white-space: nowrap;
+  width: 150px;
+}
