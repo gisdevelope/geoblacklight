@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 describe Geoblacklight::SolrDocument do
@@ -33,6 +34,32 @@ describe Geoblacklight::SolrDocument do
       let(:document_attributes) { { rights_field => 'RESTRICTED' } }
       it 'does not be public' do
         expect(document.public?).to be_falsey
+      end
+    end
+    describe 'without rights data' do
+      let(:document_attributes) { {} }
+      it 'is not public' do
+        expect(document.public?).to be_falsey
+      end
+    end
+  end
+  describe '#restricted?' do
+    describe 'a restricted document' do
+      let(:document_attributes) { { rights_field => 'RESTRICTED' } }
+      it 'is restricted' do
+        expect(document.restricted?).to be_truthy
+      end
+    end
+    describe 'a non-restricted resource' do
+      let(:document_attributes) { { rights_field => 'PUBLIC' } }
+      it 'is not restricted' do
+        expect(document.restricted?).to be_falsey
+      end
+    end
+    describe 'without rights data' do
+      let(:document_attributes) { {} }
+      it 'is restricted' do
+        expect(document.restricted?).to be_truthy
       end
     end
   end
@@ -121,6 +148,26 @@ describe Geoblacklight::SolrDocument do
       let(:document_attributes) { {} }
       it 'returns nil' do
         expect(document.direct_download).to be_nil
+      end
+    end
+  end
+  describe '#oembed' do
+    describe 'with an oembed url' do
+      let(:document_attributes) do
+        {
+          references_field => {
+            'https://oembed.com' => 'http://example.com/oembed?url=oembec.com/id123'
+          }.to_json
+        }
+      end
+      it 'returns a url string' do
+        expect(document.oembed).to eq('http://example.com/oembed?url=oembec.com/id123')
+      end
+    end
+    describe 'without an oembed url' do
+      let(:document_attributes) { {} }
+      it 'returns nil' do
+        expect(document.oembed).to be_nil
       end
     end
   end

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 describe Geoblacklight::Download do
@@ -31,7 +32,7 @@ describe Geoblacklight::Download do
   end
   describe '#file_path' do
     it 'returns the path with name and extension' do
-      expect(download.class.file_path).to eq "#{Rails.root}/tmp/cache/downloads"
+      expect(download.class.file_path).to eq Rails.root.join('tmp', 'cache', 'downloads')
     end
     it 'is configurable' do
       expect(Settings).to receive(:DOWNLOAD_PATH).and_return('configured/path')
@@ -141,14 +142,14 @@ describe Geoblacklight::Download do
 
     it 'raises Geoblacklight::Exceptions::ExternalDownloadFailed with a connection failure' do
       expect(faraday_connection).to receive(:url_prefix).and_return 'http://www.example.com/wms'
-      expect(faraday_connection).to receive(:get).and_raise(Faraday::Error::ConnectionFailed.new('Failed'))
+      expect(faraday_connection).to receive(:get).and_raise(Faraday::ConnectionFailed.new('Failed'))
       expect(Faraday).to receive(:new).with(url: 'http://www.example.com/wms').and_return(faraday_connection)
       expect { download.initiate_download }.to raise_error(Geoblacklight::Exceptions::ExternalDownloadFailed)
     end
 
     it 'raises Geoblacklight::Exceptions::ExternalDownloadFailed with a connection timout' do
       expect(faraday_connection).to receive(:url_prefix).and_return 'http://www.example.com/wms'
-      expect(faraday_connection).to receive(:get).and_raise(Faraday::Error::TimeoutError)
+      expect(faraday_connection).to receive(:get).and_raise(Faraday::TimeoutError)
       expect(Faraday).to receive(:new).with(url: 'http://www.example.com/wms').and_return(faraday_connection)
       expect { download.initiate_download }.to raise_error(Geoblacklight::Exceptions::ExternalDownloadFailed)
     end

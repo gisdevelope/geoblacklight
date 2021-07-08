@@ -1,13 +1,15 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 describe GeoblacklightHelper, type: :helper do
+  include BlacklightHelper
   include ActionView::Helpers::UrlHelper
   include ActionView::Helpers::TranslationHelper
   describe '#render_facet_links' do
     let(:subject_field) { Settings.FIELDS.SUBJECT }
     it 'contains unique links' do
       expect(self).to receive(:search_catalog_path).exactly(3).times.and_return("http://example.com/catalog?f[#{subject_field}][]=category")
-      html = Capybara.string(render_facet_links(subject_field, %w(Test Test Earth Science)))
+      html = Capybara.string(render_facet_links(subject_field, %w[Test Test Earth Science]))
       expect(html).to have_css 'a', count: 3
       expect(html).to have_css 'a', text: 'Test', count: 1
       expect(html).to have_css 'a', text: 'Earth', count: 1
@@ -15,37 +17,21 @@ describe GeoblacklightHelper, type: :helper do
     end
   end
 
-  describe '#sms_helper' do
-    it 'generates an icon for SMS messaging' do
-      expect(sms_helper).to eq('<i class="fa fa-mobile fa-fw"></i> SMS This')
-    end
-  end
-
-  describe '#email_helper' do
-    it 'generates an icon for e-mail messaging' do
-      expect(email_helper).to eq('<i class="fa fa-envelope fa-fw"></i> Email')
-    end
-  end
-
   describe '#geoblacklight_icon' do
-    it 'replaces special characters, lowercases, and subs spaces for hyphens' do
-      html = Capybara.string(geoblacklight_icon('TEst & 123'))
-      expect(html).to have_css '.geoblacklight-test-123'
-    end
     it 'supports in use cases' do
       {
         'Paper map' => 'paper-map',
         'Michigan State' => 'michigan-state',
         'CD ROM' => 'cd-rom',
         'Lewis & Clark' => 'lewis-clark'
-      }.each do |key, value|
+      }.each_key do |key|
         html = Capybara.string(geoblacklight_icon(key))
-        expect(html).to have_css ".geoblacklight-#{value}"
+        expect(html).to have_xpath "//*[local-name() = 'svg']"
       end
     end
     it 'handles nil values' do
       html = Capybara.string(geoblacklight_icon(nil))
-      expect(html).to have_css '.geoblacklight-none'
+      expect(html).to have_css '.icon-missing'
     end
   end
 
@@ -64,6 +50,17 @@ describe GeoblacklightHelper, type: :helper do
   describe '#download_text' do
     it 'returns download text concatenated with proper case format' do
       expect(download_text('GEOJSON')).to eq 'Original GeoJSON'
+    end
+  end
+
+  describe '#download_link_file' do
+    let(:label) { 'Test Link Text' }
+    let(:id) { 'test-id' }
+    let(:url) { 'http://example.com/urn:hul.harvard.edu:HARVARD.SDE2.TG10USAIANNH/data.zip' }
+
+    it 'generates a link to download the original file' do
+      puts download_link_file(label, id, url)
+      expect(download_link_file(label, id, url)).to eq '<a contentUrl="http://example.com/urn:hul.harvard.edu:HARVARD.SDE2.TG10USAIANNH/data.zip" class="btn btn-default download download-original" data-download="trigger" data-download-type="direct" data-download-id="test-id" href="http://example.com/urn:hul.harvard.edu:HARVARD.SDE2.TG10USAIANNH/data.zip">Test Link Text</a>'
     end
   end
 
@@ -200,7 +197,7 @@ describe GeoblacklightHelper, type: :helper do
     context 'as a multivalued Array' do
       let(:document_attributes) do
         {
-          value: %w(short description)
+          value: %w[short description]
         }
       end
       it 'uses both values' do
@@ -219,15 +216,9 @@ describe GeoblacklightHelper, type: :helper do
       allow(helper).to receive(:application_name).and_return('GeoBlacklight')
     end
 
-    describe '#cartodb_provider' do
-      it 'aliases CartoHelper#carto_provider' do
-        expect(helper.cartodb_provider).to eq('GeoBlacklight')
-      end
-    end
-
-    describe '#cartodb_link' do
+    describe '#carto_link' do
       it 'aliases CartoHelper#carto_link' do
-        expect(helper.cartodb_link('http://demo.org/wfs/layer.json')).to eq(helper.carto_link('http://demo.org/wfs/layer.json'))
+        expect(helper.carto_link('http://demo.org/wfs/layer.json')).to eq(helper.carto_link('http://demo.org/wfs/layer.json'))
       end
     end
   end
@@ -261,7 +252,7 @@ describe GeoblacklightHelper, type: :helper do
 
   describe '#render_value_as_truncate_abstract' do
     context 'with multiple values' do
-      let(:document) { SolrDocument.new(value: %w(short description)) }
+      let(:document) { SolrDocument.new(value: %w[short description]) }
       it 'wraps in correct DIV class' do
         expect(helper.render_value_as_truncate_abstract(document)).to eq '<div class="truncate-abstract">short description</div>'
       end
@@ -319,6 +310,66 @@ describe GeoblacklightHelper, type: :helper do
 
     it 'confirms that a metadata resource is the first item reference' do
       expect(helper.first_metadata?(document, metadata)).to be true
+    end
+  end
+
+  describe '#show_help_text?' do
+    let(:feature) { 'viewer_protocol' }
+    let(:translation_key) { 'wms' }
+
+    it 'confirms help text is available' do
+      expect(helper.show_help_text?(feature, translation_key)).to be true
+    end
+  end
+
+  describe '#render_help_text_entry' do
+    let(:feature) { 'viewer_protocol' }
+    let(:translation_key) { 'wms' }
+
+    context 'valid entry' do
+      it 'renders help text entry for the wms viewer protocol' do
+        expect(helper.render_help_text_entry(feature, translation_key)).to eq '<h3 class="help-text viewer_protocol h6"><a data-toggle="popover" data-title="Web Map Service (WMS)" data-content="A Web Map Service displays a geospatial dataset as map images.">Web Map Service (WMS)</a></h3>'
+      end
+    end
+
+    context 'invalid entry' do
+      it 'renders an empty span' do
+        expect(helper.render_help_text_entry('foo', 'bar')).to eq '<span class="help-text translation-missing"></span>'
+      end
+    end
+  end
+
+  describe '#relations_icon' do
+    context 'when configured to use the geometry type' do
+      before do
+        allow(Settings).to receive(:USE_GEOM_FOR_RELATIONS_ICON).and_return(true)
+      end
+
+      it 'renders a goemetry type as the icon' do
+        html = Capybara.string(helper.relations_icon({ 'layer_geom_type_s' => 'polygon' }, 'leaf'))
+        expect(html.title.strip).to eq 'Polygon'
+      end
+
+      it 'has the svg_tooltip class so that the Bootstrap tooltip is applied' do
+        html = Capybara.string(helper.relations_icon({ 'layer_geom_type_s' => 'polygon' }, 'leaf'))
+        expect(html).to have_css('.blacklight-icons.svg_tooltip')
+      end
+    end
+
+    context 'when not confiugred to use the geometry type' do
+      before do
+        allow(Settings).to receive(:USE_GEOM_FOR_RELATIONS_ICON).and_return(false)
+      end
+
+      it 'renders the provided icon' do
+        html = Capybara.string(helper.relations_icon({ 'layer_geom_type_s' => 'polygon' }, 'leaf'))
+        expect(html.title.strip).to eq 'Leaf'
+      end
+
+      it 'does not have the svg_tooltip class' do
+        html = Capybara.string(helper.relations_icon({ 'layer_geom_type_s' => 'polygon' }, 'leaf'))
+        expect(html).not_to have_css('.blacklight-icons.svg_tooltip')
+      end
     end
   end
 end

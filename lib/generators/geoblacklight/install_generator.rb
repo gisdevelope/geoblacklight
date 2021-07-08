@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails/generators'
 
 module Geoblacklight
@@ -30,12 +31,8 @@ module Geoblacklight
       inject_into_file 'config/routes.rb', routes, before: /^end/
     end
 
-    def assets
-      copy_file 'geoblacklight.scss', 'app/assets/stylesheets/geoblacklight.scss'
-      copy_file 'geoblacklight.js', 'app/assets/javascripts/geoblacklight.js'
-
-      append_to_file 'config/initializers/assets.rb',
-                     "\nRails.application.config.assets.precompile += %w( favicon.ico )\n"
+    def generate_assets
+      generate 'geoblacklight:assets'
     end
 
     def create_blacklight_catalog
@@ -88,10 +85,9 @@ module Geoblacklight
       gsub_file('config/locales/blacklight.en.yml', 'Blacklight', 'GeoBlacklight')
     end
 
-    # Temporarily pin blacklight to latest commit on master.
-    # TODO: Remove before merging blacklight 7 branch.
-    def pin_blacklight_7
-      gsub_file('Gemfile', "gem 'blacklight'", "gem 'blacklight', github: 'projectblacklight/blacklight', ref: '99878d4'")
+    # Ensure that assets/images exists
+    def create_image_assets_directory
+      FileUtils.mkdir_p('app/assets/images') unless File.directory?('app/assets/images')
     end
 
     def bundle_install

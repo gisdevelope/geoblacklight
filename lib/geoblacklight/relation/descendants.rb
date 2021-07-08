@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Geoblacklight
   module Relation
     class Descendants
@@ -8,7 +9,7 @@ module Geoblacklight
 
       def create_search_params
         { fq: "#{Settings.FIELDS.SOURCE}:#{@search_id}",
-          fl: [Settings.FIELDS.TITLE, 'layer_slug_s'] }
+          fl: [Settings.FIELDS.TITLE, 'layer_slug_s', Settings.FIELDS.GEOM_TYPE] }
       end
 
       def execute_query

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 describe Geoblacklight::WmsLayer do
@@ -73,7 +74,7 @@ describe Geoblacklight::WmsLayer do
     context 'when the HTTP connection fails' do
       before do
         allow(Geoblacklight.logger).to receive(:error).with('#<Faraday::ConnectionFailed wrapped=#<StandardError: test connection error>>')
-        allow(connection).to receive(:get).and_raise(Faraday::Error::ConnectionFailed.new(StandardError.new('test connection error')))
+        allow(connection).to receive(:get).and_raise(Faraday::ConnectionFailed.new(StandardError.new('test connection error')))
       end
 
       it 'logs the Faraday error' do
@@ -86,7 +87,7 @@ describe Geoblacklight::WmsLayer do
     context 'when the HTTP connection times out' do
       before do
         allow(Geoblacklight.logger).to receive(:error).with('#<Faraday::TimeoutError #<Faraday::TimeoutError: timeout>>')
-        allow(connection).to receive(:get).and_raise(Faraday::Error::TimeoutError)
+        allow(connection).to receive(:get).and_raise(Faraday::TimeoutError)
       end
 
       it 'logs the Faraday error' do

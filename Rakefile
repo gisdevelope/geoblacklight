@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 require 'rails'
 begin
   require 'bundler/setup'
@@ -13,8 +14,6 @@ require 'engine_cart/rake_task'
 require 'rspec/core/rake_task'
 require 'rubocop/rake_task'
 require 'solr_wrapper/rake_task'
-
-EngineCart.fingerprint_proc = EngineCart.rails_fingerprint_proc
 
 desc 'Run RuboCop style checker'
 RuboCop::RakeTask.new(:rubocop) do |task|
@@ -38,6 +37,7 @@ task ci: ['geoblacklight:generate'] do
     solr.with_collection(name: 'blacklight-core', dir: File.join(File.expand_path('.', File.dirname(__FILE__)), 'solr', 'conf')) do
       within_test_app do
         system 'RAILS_ENV=test rake geoblacklight:index:seed'
+        system 'RAILS_ENV=test bundle exec rails webpacker:compile'
       end
       Rake::Task['geoblacklight:coverage'].invoke
     end

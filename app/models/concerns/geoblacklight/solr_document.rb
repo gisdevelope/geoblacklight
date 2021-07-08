@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Geoblacklight
   # Extends Blacklight::Solr::Document for GeoBlacklight specific functionalit
   module SolrDocument
@@ -6,6 +7,8 @@ module Geoblacklight
     include Geoblacklight::SolrDocument::Finder
     include Geoblacklight::SolrDocument::Carto
     include Geoblacklight::SolrDocument::Inspection
+    include Geoblacklight::SolrDocument::Arcgis
+    include Geoblacklight::SolrDocument::Citation
 
     delegate :download_types, to: :references
     delegate :viewer_protocol, to: :item_viewer
@@ -16,11 +19,11 @@ module Geoblacklight
     end
 
     def public?
-      fetch(Settings.FIELDS.RIGHTS).casecmp('public').zero?
+      rights_field_data.present? && rights_field_data.casecmp('public').zero?
     end
 
     def restricted?
-      fetch(Settings.FIELDS.RIGHTS).casecmp('restricted').zero?
+      rights_field_data.blank? || rights_field_data.casecmp('restricted').zero?
     end
 
     def downloadable?
@@ -32,23 +35,31 @@ module Geoblacklight
     end
 
     def direct_download
-      references.download.to_hash unless references.download.blank?
+      references.download.to_hash if references.download.present?
     end
 
     def hgl_download
-      references.hgl.to_hash unless references.hgl.blank?
+      references.hgl.to_hash if references.hgl.present?
+    end
+
+    def oembed
+      references.oembed.endpoint if references.oembed.present?
     end
 
     def same_institution?
-      fetch(Settings.FIELDS.PROVENANCE).casecmp(Settings.INSTITUTION.downcase).zero?
+      fetch(Settings.FIELDS.PROVENANCE, '').casecmp(Settings.INSTITUTION.downcase).zero?
     end
 
     def iiif_download
-      references.iiif.to_hash unless references.iiif.blank?
+      references.iiif.to_hash if references.iiif.present?
     end
 
     def data_dictionary_download
-      references.data_dictionary.to_hash unless references.data_dictionary.blank?
+      references.data_dictionary.to_hash if references.data_dictionary.present?
+    end
+
+    def external_url
+      references.url.endpoint if references.url
     end
 
     def item_viewer
@@ -93,8 +104,12 @@ module Geoblacklight
 
     private
 
+    def rights_field_data
+      fetch(Settings.FIELDS.RIGHTS, '')
+    end
+
     def method_missing(method, *args, &block)
-      if /.*_url$/ =~ method.to_s
+      if /.*_url$/.match?(method.to_s)
         checked_endpoint(method.to_s.gsub('_url', ''))
       else
         super

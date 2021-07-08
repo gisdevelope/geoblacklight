@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Geoblacklight
   ##
   # Parses an array of dct_references to create useful reference information
@@ -36,9 +37,10 @@ module Geoblacklight
 
     ##
     # The URI used for this instance's creation
+    # Remove any trailing slashes
     # @return [String]
     def uri
-      @reference[0]
+      @reference[0].sub(/(\/)+$/, '') if @reference[0].present?
     end
   end
 end

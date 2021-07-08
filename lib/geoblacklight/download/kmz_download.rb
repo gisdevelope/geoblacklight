@@ -1,9 +1,10 @@
+# frozen_string_literal: true
 module Geoblacklight
   class KmzDownload < Geoblacklight::Download
     KMZ_DOWNLOAD_PARAMS = { service: 'wms',
                             version: '1.1.0',
                             request: 'GetMap',
-                            srsName: 'EPSG:900913',
+                            srsName: 'EPSG:3857',
                             format: 'application/vnd.google-earth.kmz',
                             width: 2000, height: 2000 }.freeze
 

@@ -1,10 +1,11 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 describe Geoblacklight::SpatialSearchBehavior do
   subject { search_builder.with(user_params) }
 
-  let(:user_params) { Hash.new }
-  let(:solr_params) { Hash.new }
+  let(:user_params) { {} }
+  let(:solr_params) { {} }
   let(:blacklight_config) { CatalogController.blacklight_config.deep_copy }
   let(:context) { CatalogController.new }
   let(:search_builder_class) do
@@ -41,6 +42,28 @@ describe Geoblacklight::SpatialSearchBehavior do
       it 'applies default boost of 10 when Settings.BBOX_WITHIN_BOOST not configured' do
         allow(Settings).to receive(:BBOX_WITHIN_BOOST).and_return nil
         expect(subject.add_spatial_params(solr_params)[:bq].to_s).to include('^10')
+      end
+
+      it 'applies overlapRatio when Settings.OVERLAP_RATIO_BOOST is configured' do
+        allow(Settings).to receive(:OVERLAP_RATIO_BOOST).and_return 2
+        expect(subject.add_spatial_params(solr_params)[:bf].to_s).to include('$overlap^2')
+      end
+
+      it 'does not apply overlapRatio when Settings.OVERLAP_RATIO_BOOST not configured' do
+        allow(Settings).to receive(:OVERLAP_RATIO_BOOST).and_return nil
+        expect(subject.add_spatial_params(solr_params)).not_to have_key(:overlap)
+      end
+
+      context 'when local boost parameter is present' do
+        before do
+          solr_params[:bf] = ['local_boost^5']
+        end
+
+        it 'appends overlap and includes the local boost' do
+          allow(Settings).to receive(:OVERLAP_RATIO_BOOST).and_return 2
+          expect(subject.add_spatial_params(solr_params)[:bf].to_s).to include('$overlap^2')
+          expect(solr_params[:bf].to_s).to include('local_boost^5')
+        end
       end
 
       context 'when the wrong format for the bounding box is used' do

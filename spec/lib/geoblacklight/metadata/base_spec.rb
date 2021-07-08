@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 describe Geoblacklight::Metadata::Base do
@@ -9,11 +10,11 @@ describe Geoblacklight::Metadata::Base do
     Geoblacklight::Reference.new(['http://www.loc.gov/mods/v3', 'http://purl.stanford.edu/cg357zz0321.mods'])
   end
 
-  describe '#document' do
-    before do
-      allow(Faraday).to receive(:new).with(url: 'http://purl.stanford.edu/cg357zz0321.mods').and_return(connection)
-    end
+  before do
+    allow(Faraday).to receive(:new).with(url: 'http://purl.stanford.edu/cg357zz0321.mods').and_return(connection)
+  end
 
+  describe '#document' do
     context 'with valid XML data at an endpoint URL' do
       before do
         allow(response).to receive(:status).and_return(200)
@@ -30,13 +31,27 @@ describe Geoblacklight::Metadata::Base do
       subject { metadata.document }
 
       before do
-        allow(connection).to receive(:get).and_raise(Faraday::Error::ConnectionFailed, 'test connection failures')
+        allow(connection).to receive(:get).and_raise(Faraday::ConnectionFailed, 'test connection failures')
       end
 
       it 'returns nil when a connection error' do
         expect(subject).to be_a Nokogiri::XML::Document
         expect(subject.children.empty?).to be true
       end
+    end
+  end
+
+  context 'when attempts to connect to an endpoint URL raise an OpenSSL error' do
+    subject { metadata.document }
+
+    before do
+      expect(Geoblacklight.logger).to receive(:error).with(/dh key too small/)
+      allow(connection).to receive(:get).and_raise(OpenSSL::SSL::SSLError, 'dh key too small')
+    end
+
+    it 'returns nil when a connection error' do
+      expect(subject).to be_a Nokogiri::XML::Document
+      expect(subject.children.empty?).to be true
     end
   end
 
@@ -59,7 +74,7 @@ describe Geoblacklight::Metadata::Base do
 
     context 'when attempts to connect to an endpoint URL fail' do
       before do
-        allow(connection).to receive(:get).and_raise(Faraday::Error::ConnectionFailed, 'test connection failures')
+        allow(connection).to receive(:get).and_raise(Faraday::ConnectionFailed, 'test connection failures')
       end
 
       it 'returns true' do
@@ -130,7 +145,7 @@ describe Geoblacklight::Metadata::Base do
     context 'when requesting the metadata resource times out' do
       before do
         allow(geocombine_metadata).to receive(:to_html).and_return('')
-        allow(connection).to receive(:get).and_raise(Faraday::Error::TimeoutError)
+        allow(connection).to receive(:get).and_raise(Faraday::TimeoutError)
         allow(Geoblacklight.logger).to receive(:error).with('#<Faraday::TimeoutError #<Faraday::TimeoutError: timeout>>')
       end
 

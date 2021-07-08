@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Geoblacklight
   # References is a geoblacklight-schema dct:references parser
   class References
@@ -43,7 +44,7 @@ module Geoblacklight
     # Preferred download (should be a file download)
     # @return [Hash, nil]
     def preferred_download
-      return file_download unless download.blank?
+      return file_download if download.present?
     end
 
     ##
@@ -65,6 +66,14 @@ module Geoblacklight
     # @return (see #downloads_by_format)
     def download_types
       downloads_by_format
+    end
+
+    ##
+    # Returns all of the Esri webservices for given set of references
+    def esri_webservices
+      %w[tiled_map_layer dynamic_map_layer feature_layer image_map_layer].map do |layer_type|
+        send(layer_type)
+      end.compact
     end
 
     private
@@ -92,9 +101,12 @@ module Geoblacklight
     # present
     # @return (see #downloads_by_format)
     def vector_download_formats
-      { shapefile: wfs.to_hash,
+      return unless wms.present? && wfs.present?
+      {
+        shapefile: wfs.to_hash,
         kmz: wms.to_hash,
-        geojson: wfs.to_hash } if wms.present? && wfs.present?
+        geojson: wfs.to_hash
+      }
     end
 
     ##

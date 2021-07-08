@@ -1,12 +1,10 @@
+# frozen_string_literal: true
 require 'blacklight'
-require 'leaflet-rails'
-require 'font-awesome-rails'
 require 'coderay'
 require 'config'
 require 'faraday'
 require 'faraday_middleware'
 require 'nokogiri'
-require 'geoblacklight-icons'
 require 'mime/types'
 require 'handlebars_assets'
 

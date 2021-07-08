@@ -1,12 +1,14 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 feature 'feature_layer reference', js: true do
   scenario 'displays image map layer' do
-    visit solr_document_path 'princeton-test-oregon-naip-2011'
+    visit solr_document_path '32653ed6-8d83-4692-8a06-bf13ffe2c018'
     expect(page).to have_css '.leaflet-control-zoom', visible: true
     expect(page).to have_css 'img.leaflet-image-layer', visible: true
   end
   scenario 'displays dynamic layer (all layers)' do
+    pending 'external service disabled cors access'
     visit solr_document_path '90f14ff4-1359-4beb-b931-5cb41d20ab90'
     expect(page).to have_css '.leaflet-control-zoom', visible: true
     expect(page).to have_css 'img.leaflet-image-layer', visible: true
@@ -22,11 +24,6 @@ feature 'feature_layer reference', js: true do
     expect(page).to have_css '.leaflet-control-zoom', visible: true
     expect(Nokogiri::HTML.parse(page.body).css('g').length).to eq 23
     fail
-  end
-  scenario 'displays image map layer' do
-    visit solr_document_path 'princeton-test-oregon-naip-2011'
-    expect(page).to have_css '.leaflet-control-zoom', visible: true
-    expect(page).to have_css 'img.leaflet-image-layer', visible: true
   end
   scenario 'displays tiled map layer' do
     visit solr_document_path 'nyu-test-soil-survey-map'

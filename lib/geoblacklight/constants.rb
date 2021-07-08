@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Geoblacklight
   # Module to declare application level constants and lookup hash
   module Constants
@@ -8,7 +9,7 @@ module Geoblacklight
       html: 'http://www.w3.org/1999/xhtml',
       iiif: 'http://iiif.io/api/image',
       iiif_manifest: 'http://iiif.io/api/presentation#manifest',
-      iso19139: 'http://www.isotc211.org/schemas/2005/gmd/',
+      iso19139: 'http://www.isotc211.org/schemas/2005/gmd',
       mods: 'http://www.loc.gov/mods/v3',
       shapefile: 'http://www.esri.com/library/whitepapers/pdfs/shapefile.pdf',
       url: 'http://schema.org/url',
@@ -21,7 +22,8 @@ module Geoblacklight
       dynamic_map_layer: 'urn:x-esri:serviceType:ArcGIS#DynamicMapLayer',
       image_map_layer: 'urn:x-esri:serviceType:ArcGIS#ImageMapLayer',
       data_dictionary: 'http://lccn.loc.gov/sh85035852',
-      index_map: 'https://openindexmaps.org'
+      index_map: 'https://openindexmaps.org',
+      oembed: 'https://oembed.com'
     }.freeze
   end
 end

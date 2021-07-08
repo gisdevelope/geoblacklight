@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 feature 'Index view', js: true do
@@ -9,7 +10,7 @@ feature 'Index view', js: true do
   scenario 'should have documents and map on page' do
     visit search_catalog_path(f: { Settings.FIELDS.PROVENANCE => ['Stanford'] })
     expect(page).to have_css('#documents')
-    expect(page).to have_css('.document', count: 4)
+    expect(page).to have_css('.document', count: 5)
     expect(page).to have_css('#map')
   end
 
@@ -30,7 +31,7 @@ feature 'Index view', js: true do
       expect(page).to have_css('div.card.facet-limit', text: 'Data type')
       expect(page).to have_css('div.card.facet-limit', text: 'Format')
     end
-    click_link 'Institution'
+    click_button 'Institution'
     using_wait_time 120 do
       expect(page).to have_css('a.facet-select', text: 'Minnesota', visible: true)
       expect(page).to have_css('a.facet-select', text: 'MIT', visible: true)
@@ -51,9 +52,9 @@ feature 'Index view', js: true do
   end
 
   scenario 'click on a record area to expand collapse' do
-    within('.documentHeader', match: :first) do
+    within('article', match: :first) do
       expect(page).not_to have_css('.collapse')
-      find('.status-icons').click
+      find('button').click
       expect(page).to have_css('.collapse', visible: true)
     end
   end

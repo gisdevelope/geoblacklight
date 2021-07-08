@@ -1,6 +1,7 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
-describe Geoblacklight::DownloadController, type: :controller do
+describe DownloadController, type: :controller do
   describe '#file' do
     describe 'restricted file' do
       it 'redirects to login for authentication' do

@@ -9,16 +9,16 @@ Rails:
   Enabled: true
 
 AllCops:
+  TargetRubyVersion: 2.7
   DisplayCopNames: true
-  Include:
-  - '**/Rakefile'
   Exclude:
-  - 'db/**/*'
-  - 'vendor/**/*'
   - '.internal_test_app/**/*'
-  - 'lib/generators/geoblacklight/templates/**/*'
+  - 'db/**/*'
   - 'geoblacklight.gemspec'
   - 'Gemfile'
+  - 'lib/generators/geoblacklight/templates/**/*'
+  - 'tmp/**/*'
+  - 'vendor/**/*'
 
 Layout/DotPosition:
   Description: Checks the position of the dot in multi-line method calls.
@@ -29,20 +29,26 @@ Layout/DotPosition:
   - leading
   - trailing
 
-Metrics/BlockLength:
+Layout/LineLength:
+  Max: 115
   Exclude:
-  - 'spec/helpers/geoblacklight_helper_spec.rb'
-
-Metrics/LineLength:
-  Max: 100
-  Exclude:
-  - 'spec/**/*'
-  - 'Rakefile'
+  - 'app/models/concerns/geoblacklight/spatial_search_behavior.rb'
+  - 'bin/coverage.rb'
   - 'lib/generators/geoblacklight/install_generator.rb'
   - 'lib/tasks/geoblacklight.rake'
+  - 'Rakefile'
+  - 'spec/**/*'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'lib/tasks/geoblacklight.rake'
+    - 'Rakefile'
+    - 'spec/**/*'
 
 Metrics/MethodLength:
   Max: 16
+  Exclude:
+    - 'lib/geoblacklight/metadata/base.rb'
 
 Metrics/ModuleLength:
   Exclude:
@@ -88,3 +94,8 @@ Style/StringLiterals:
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#consistent-string-literals
   Enabled: true
   EnforcedStyle: single_quotes
+
+Style/SafeNavigation:
+  Exclude:
+    - 'app/models/concerns/geoblacklight/solr_document/arcgis.rb'
+    - 'app/models/concerns/geoblacklight/solr_document.rb'

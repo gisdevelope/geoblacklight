@@ -3,44 +3,63 @@
 }
 
 .more-info-area {
-  float: left;
-  order:3;
   max-height: 100px;
   overflow:hidden;
+  padding-left: 2ch;
 }
 
-.text-span{
-  width:80%;
-  float:left;
+.documents-list {
+  @extend .mb-4;
 }
 
-.hide-overflow {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display:block
+.index-split {
+  .index_title {
+    display: flex;
+    font-size: 1rem;
+    padding-right: 0;
+  }
+
+  .document-counter {
+    @extend .pr-1;
+  }
+
+  .caret-toggle {
+    @include caret('right');
+    padding-left: 0;
+    width: 28px;
+
+    &[aria-expanded="true"] {
+      @include caret('down');
+    }
+  }
+
+  .status-icons {
+    cursor: pointer;
+    margin-left: 0.5rem;
+    margin-top: -3px;
+    white-space: nowrap;
+    z-index: 2; // get the icons above the toggle
+  }
 }
 
-.status-icons {
-  order: 2;
-  margin-left: 0.5rem;
-}
+#main-container {
+  .category-block {
+    min-height: 240px;
 
-.index_title {
-  order: 1;
-  @extend .text-span;
-  @extend .hide-overflow;
-  @extend h5;
-  font-size:1rem;
-  width:80%;
-}
+    .category-icon {
+      font-size: 6em;
+    }
+  }
 
-.caret-toggle {
-  @extend .fa, .fa-caret-right;
-  cursor: pointer;
-  width: 10px;
+  [data-map="index"] {
+    height: 400px;
 
-  &.open {
-    @extend .fa, .fa-caret-down;
+    .leaflet-control-container {
+      .search-control {
+        a {
+          color: $white;
+        }
+      }
+    }
   }
 }

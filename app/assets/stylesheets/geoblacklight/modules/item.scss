@@ -1,26 +1,13 @@
 #document {
-  .geoblacklight-view-panel {
-    .dl-horizontal {
-      @media (min-width: map-get($grid-breakpoints, "md")) {
-        dt {
-          float: left;
-          width: 10rem;
-          clear: left;
-          text-align: right;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        dd {
-          margin-left: 11.25rem;
-        }
-      }
+  .document-metadata.dl-invert {
+     dt {
+      font-weight: bold;
     }
   }
 
   #viewer-container {
     [data-map="item"] {
+      border: 1px solid $gray-400;
       height: 27.5rem;
     }
 
@@ -32,5 +19,21 @@
         cursor: crosshair;
       }
     }
+  }
+
+  .help-text {
+    cursor: pointer;
+  }
+
+  .truncate-abstract.collapse:not(.show),
+  .truncate-abstract.collapsing {
+    display: block;
+    display: -webkit-box;
+    height: auto;
+    min-height: #{8 * $line-height-base}rem;
+    max-height: #{8 * $line-height-base}rem;
+    overflow-y: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 8;
   }
 }

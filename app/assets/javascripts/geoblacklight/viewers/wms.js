@@ -23,7 +23,7 @@ GeoBlacklight.Viewer.Wms = GeoBlacklight.Viewer.Map.extend({
       format: 'image/png',
       transparent: true,
       tiled: true,
-      CRS: 'EPSG:900913',
+      CRS: 'EPSG:3857',
       opacity: this.options.opacity,
       detectRetina: _this.detectRetina()
     });
@@ -34,7 +34,7 @@ GeoBlacklight.Viewer.Wms = GeoBlacklight.Viewer.Map.extend({
   setupInspection: function() {
     var _this = this;
     this.map.on('click', function(e) {
-      spinner = '<tbody class="attribute-table-body"><tr><td colspan="2"><span id="attribute-table"><i class="fa fa-spinner fa-spin fa-align-center"></i></span></td></tr></tbody>';
+      spinner = '<tbody class="attribute-table-body"><tr><td colspan="2"><span id="attribute-table"><div class="spinner-border" role="status"><span class="sr-only">Inspecting</span></div></span></td></tr></tbody>';
       $('.attribute-table-body').replaceWith(spinner);
       var wmsoptions = {
         URL: _this.data.url,

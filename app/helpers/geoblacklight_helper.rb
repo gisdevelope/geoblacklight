@@ -1,15 +1,5 @@
+# frozen_string_literal: true
 module GeoblacklightHelper
-  extend Deprecation
-  self.deprecation_horizon = 'Geoblacklight 2.0.0'
-
-  def sms_helper
-    content_tag(:i, '', class: 'fa fa-mobile fa-fw') + ' ' + t('blacklight.tools.sms')
-  end
-
-  def email_helper
-    content_tag(:i, '', class: 'fa fa-envelope fa-fw') + ' ' + t('blacklight.tools.email')
-  end
-
   def document_available?
     @document.public? || (@document.same_institution? && user_signed_in?)
   end
@@ -20,6 +10,20 @@ module GeoblacklightHelper
 
   def iiif_jpg_url
     @document.references.iiif.endpoint.sub! 'info.json', 'full/full/0/default.jpg'
+  end
+
+  def download_link_file(label, id, url)
+    link_to(
+      label,
+      url,
+      'contentUrl' => url,
+      class: ['btn', 'btn-default', 'download', 'download-original'],
+      data: {
+        download: 'trigger',
+        download_type: 'direct',
+        download_id: id
+      }
+    )
   end
 
   def download_link_direct(text, document)
@@ -35,6 +39,7 @@ module GeoblacklightHelper
       }
     )
   end
+  deprecation_deprecate download_link_direct: 'Use download_link_file instead'
 
   def download_link_hgl(text, document)
     link_to(
@@ -92,12 +97,16 @@ module GeoblacklightHelper
                        layout: 'facet_tag_layout')
   end
 
-  def geoblacklight_icon(name)
-    icon_name = name ? name.parameterize : 'none'
-    content_tag :span,
-                '',
-                class: "geoblacklight-icon geoblacklight-#{icon_name}",
-                title: name
+  ##
+  # Returns an SVG icon or empty HTML span element
+  # @return [SVG or HTML tag]
+  def geoblacklight_icon(name, **args)
+    icon_name = name ? name.to_s.parameterize : 'none'
+    begin
+      blacklight_icon(icon_name, **args)
+    rescue Blacklight::Exceptions::IconNotFound
+      tag.span class: 'icon-missing geoblacklight-none'
+    end
   end
 
   ##
@@ -151,6 +160,29 @@ module GeoblacklightHelper
   end
 
   ##
+  # Deteremines if a feature should include help text popover
+  # @return [Boolean]
+  def show_help_text?(feature, key)
+    Settings&.HELP_TEXT&.send(feature)&.include?(key)
+  end
+
+  ##
+  # Render help text popover for a given feature and translation key
+  # @return [HTML tag]
+  def render_help_text_entry(feature, key)
+    if I18n.exists?("geoblacklight.help_text.#{feature}.#{key}", locale)
+      help_text = I18n.t("geoblacklight.help_text.#{feature}.#{key}")
+      tag.h3 class: 'help-text viewer_protocol h6' do
+        tag.a 'data': { toggle: 'popover', title: help_text[:title], content: help_text[:content] } do
+          help_text[:title]
+        end
+      end
+    else
+      tag.span class: 'help-text translation-missing'
+    end
+  end
+
+  ##
   # Deteremines if item view should include attribute table
   # @return [Boolean]
   def show_attribute_table?
@@ -163,7 +195,7 @@ module GeoblacklightHelper
   # get_field_values method
   # @param [Hash] args from get_field_values
   def render_value_as_truncate_abstract(args)
-    content_tag :div, class: 'truncate-abstract' do
+    tag.div class: 'truncate-abstract' do
       Array(args[:value]).flatten.join(' ')
     end
   end
@@ -174,24 +206,6 @@ module GeoblacklightHelper
   def geoblacklight_basemap
     blacklight_config.basemap_provider || 'positron'
   end
-
-  ##
-  # Removes blank space from provider to accomodate CartoDB OneClick
-  # @deprecated Use {#carto_provider} instead.
-  def cartodb_provider
-    carto_provider
-  end
-  deprecation_deprecate cartodb_provider: 'use GeoblacklightHelper#carto_provider instead'
-
-  ##
-  # Creates a Carto OneClick link link, using the configuration link
-  # @param [String] file_link
-  # @return [String]
-  # @deprecated Use {#carto_link} instead.
-  def cartodb_link(file_link)
-    carto_link(file_link)
-  end
-  deprecation_deprecate carto_link: 'use GeoblacklightHelper#carto_link instead'
 
   ##
   # Renders the partials for a Geoblacklight::Reference in the web services
@@ -221,7 +235,7 @@ module GeoblacklightHelper
   def render_facet_item_with_icon(field_name, item)
     doc = Nokogiri::HTML.fragment(render_facet_item(field_name, item))
     doc.at_css('.facet-label').children.first
-       .add_previous_sibling(geoblacklight_icon(item.value))
+       .add_previous_sibling(geoblacklight_icon(item.value, aria_hidden: true, classes: 'svg_tooltip'))
     doc.to_html.html_safe
   end
 
@@ -247,5 +261,25 @@ module GeoblacklightHelper
   # @return [Boolean]
   def first_metadata?(document, metadata)
     document.references.shown_metadata.first.type == metadata.type
+  end
+
+  ##
+  # Renders a reference url for a document
+  # @param [Hash] document, field_name
+  def render_references_url(args)
+    return unless args[:document]&.references&.url
+    link_to(
+      args[:document].references.url.endpoint,
+      args[:document].references.url.endpoint
+    )
+  end
+
+  ## Returns the icon used based off a Settings strategy
+  def relations_icon(document, icon)
+    icon_name = document[Settings.FIELDS.GEOM_TYPE] if Settings.USE_GEOM_FOR_RELATIONS_ICON
+    icon_name = icon if icon_name.blank?
+    icon_options = {}
+    icon_options = { classes: 'svg_tooltip' } if Settings.USE_GEOM_FOR_RELATIONS_ICON
+    geoblacklight_icon(icon_name, icon_options)
   end
 end

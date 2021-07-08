@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Geoblacklight
   class ItemViewer
     def initialize(references)
@@ -42,8 +43,12 @@ module Geoblacklight
       @references.index_map
     end
 
+    def oembed
+      @references.oembed
+    end
+
     def viewer_preference
-      [index_map, wms, iiif, tiled_map_layer, dynamic_map_layer,
+      [oembed, index_map, wms, iiif, tiled_map_layer, dynamic_map_layer,
        image_map_layer, feature_layer].compact.map(&:to_hash).first
     end
   end

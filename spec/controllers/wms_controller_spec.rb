@@ -1,6 +1,7 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
-describe Geoblacklight::WmsController, type: :controller do
+describe WmsController, type: :controller do
   let(:wms_layer) { instance_double('Geoblacklight::WmsLayer') }
   let(:feature_info) { { values: ['fid', 'layer:example'] } }
   let(:params) do

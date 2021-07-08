@@ -1,15 +1,10 @@
+# frozen_string_literal: true
 require 'spec_helper'
 
 feature 'search results map', js: true do
   scenario 'present on a search result page' do
     visit search_catalog_path(q: 'Minnesota')
     expect(page).to have_css '#map'
-  end
-  scenario 'present on a search result page' do
-    visit root_path
-    click_link 'Minnesota, United States'
-    results = page.all(:css, 'article.document')
-    expect(results.count).to equal(4)
   end
   scenario 'view is scoped to Minnesota' do
     visit root_path
@@ -21,7 +16,7 @@ feature 'search results map', js: true do
     # "-101.90917968749999,38.75408327579141,-83.27636718749999,53.27835301753182"
     left, bottom, right, top = bbox.split(',')
     expect(left.to_f).to be_within(2).of(-101)
-    expect(bottom.to_f).to be_within(2).of(38)
+    expect(bottom.to_f).to be_within(3).of(38)
     expect(right.to_f).to be_within(2).of(-83)
     expect(top.to_f).to be_within(2).of(53)
   end

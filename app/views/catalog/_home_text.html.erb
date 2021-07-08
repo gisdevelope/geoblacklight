@@ -5,14 +5,14 @@
       <div class='row'>
         <div class='category-block col-sm'>
           <div class='category-icon'>
-            <span class='fa fa-home'></span>
+            <%= geoblacklight_icon('home') %>
           </div>
           <%= content_tag :h4, t('geoblacklight.home.institution') %>
           <%= render_facet_tags [Settings.FIELDS.PROVENANCE] %>
         </div>
         <div class='category-block col-sm'>
           <div class='category-icon'>
-            <span class='fa fa-arrow-circle-down'></span>
+            <%= geoblacklight_icon('arrow-circle-down') %>
           </div>
           <%= content_tag :h4, t('geoblacklight.home.data_type') %>
           <%= render_facet_tags [Settings.FIELDS.GEOM_TYPE] %>
@@ -21,14 +21,14 @@
       <div class='row'>
         <div class='category-block col-sm'>
           <div class='category-icon'>
-            <span class='fa fa-globe'></span>
+            <%= geoblacklight_icon('globe') %>
           </div>
           <%= content_tag :h4, t('geoblacklight.home.placename') %>
           <%= render_facet_tags [Settings.FIELDS.SPATIAL_COVERAGE] %>
         </div>
         <div class='category-block col-sm'>
           <div class='category-icon'>
-            <span class='fa fa-tags'></span>
+            <%= geoblacklight_icon('tags') %>
           </div>
           <%= content_tag :h4, t('geoblacklight.home.subject') %>
           <%= render_facet_tags [Settings.FIELDS.SUBJECT] %>
@@ -37,7 +37,10 @@
     </div>
     <div class='col-sm'>
       <%= content_tag :h3, t('geoblacklight.home.map_heading') %>
-      <%= content_tag :div, '', id: 'map', data: { map: 'home', 'catalog-path'=> search_catalog_path , 'map-bbox' => params[:bbox], basemap: geoblacklight_basemap, leaflet_options: leaflet_options } %>
+      <%= content_tag :div, '', id: 'map', aria: { label: t('geoblacklight.map.label') }, data: { map: 'home', 'catalog-path'=> search_catalog_path , 'map-bbox' => params[:bbox], basemap: geoblacklight_basemap, leaflet_options: leaflet_options } %>
     </div>
+  </div>
+  <div class="text-right">
+    <%= t('geoblacklight.home.version', version: Geoblacklight::VERSION ) %>
   </div>
 </div>
